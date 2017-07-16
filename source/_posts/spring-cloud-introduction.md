@@ -1,0 +1,146 @@
+---
+title: spring_cloud_introduction
+date: 2016-09-24 16:04:17
+categories: spring cloud
+tags: 
+  - spring
+  - spring cloud
+  - spring boot
+  - eureka
+  - netflix
+  - zuul
+---
+
+# Spring Cloud是个什么鬼
+*Spring  Cloud*？什么东西，其实没那么神秘。。。你可以把它理解为一个工具集，为我们开发者提供的一套工具集，以方便我们构建稳健的分布式系统。利用这个工具集，我们能够轻松的实现分布式系统实际中常用到的一些设计模式。
+- 配置管理
+- 服务注册与发现
+- 断路器
+- 智能路由
+- 控制总线
+- 全局锁
+- 分布式会话管理
+- 分布式集群状态管理
+
+Spring Cloud是构建在Spring Boot的基础之上的。通过引入一大堆基于Spring Boot相关的依赖来为单独的一个应用提供对应的功能。我们可以利用Spring Cloud提供的基础实现快速体验一下，当然了，如果我们以后得心应手了，我们可以轻松的做出自己的解决方案，或者对默认方案做一些干预，以达到我们自己的目的。
+
+# 愉快的开始吧
+先看一看这个POM文件：
+```
+<parent>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-parent</artifactId>
+    <version>1.3.7.RELEASE</version>
+</parent>
+<dependencyManagement>
+    <dependencies>
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-dependencies</artifactId>
+            <version>Brixton.SR6</version>
+            <type>pom</type>
+            <scope>import</scope>
+        </dependency>
+    </dependencies>
+</dependencyManagement>
+<dependencies>
+    <dependency>
+        <groupId>org.springframework.cloud</groupId>
+        <artifactId>spring-cloud-starter-config</artifactId>
+    </dependency>
+    <dependency>
+        <groupId>org.springframework.cloud</groupId>
+        <artifactId>spring-cloud-starter-eureka</artifactId>
+    </dependency>
+</dependencies>
+```
+可以看到，我们只是依赖了一个“spring-cloud-dependencies”，其他的依赖都会在父依赖中体现，也就是在这里：
+```
+<parent>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-parent</artifactId>
+    <version>1.3.7.RELEASE</version>
+</parent>
+```
+这个例子中使用了config client和eureka。当然了，通过改变artifactId也可以轻松导入其他的功能依赖。
+我们这样做的方式目前来说是最推荐的，通过依赖管理的方式，我们可以避免遇到更多的坑。
+
+# 有啥特性呢
+Spring Cloud针对分布式系统设计中典型的用例提供了非常漂亮的开箱即用实现。对于其他不常用的应用场景，Spring Cloud也提供了一些扩展机制，我们可以轻松的搞掉这些场景。
+- 分布式/版本化的配置管理
+- 服务的注册发现
+- 路由
+- 服务的端到端的调用
+- 负载均衡
+- 断路器
+- 全局锁
+- 分布式选举和集群状态管理
+- 分布式消息
+
+Spring Cloud是通过声明似的方式来获取功能的支持的。通常来说，我们只需要改变相关的依赖，并且加上相关的注解，就可以获取对应的功能。
+举例来说，在上面的依赖基础之上，我们定义一个具有服务注册和发现特性的应用。
+```
+@SpringBootApplication
+@EnableDiscoveryClient
+public class Application {
+	public static void main(String[] args) {
+		SpringApplication.run(Application.class, args);
+	}
+}
+```
+
+# Spring Cloud中的主要项目
+## Spring Cloud Config
+主要解决外部配置管理的问题。可以通过Git来提供配置源。所有的配置资源会直接映射为Spring的环境变量。所有的配置可以通过http的方式进行访问，所以，对于异构语言平台来说也是一个福音。可以从统一的地方获取配置信息。
+## Spring Cloud Netflix
+主要是为了方便与Netflix OSS的组件进行集成。比如说：Eureka，Hystrix，Zuul，Archaius等等。
+## Spring Cloud Bus
+提供了一个消息总线，用来为服务与服务实例之间进行分布式消息传递。当我们需要跨领域集群进行状态交互是非常有用的。比如说，如果配置中心配置发生变更后，会有变更事件通知给所有订阅配置服务的应用。这种变更事件就会通过事件总线来进行传输。
+
+## Spring Cloud for Cloud Foundry
+方便与Pivotal Cloudfoundry集成。集成了服务发现，也可以轻松的实现单点登录和OAuth2，可以创建一个Cloundfoundry的服务broker。
+
+## Spring Cloud Cloud Foundry Service Broker
+提供一个创建服务broker的切入点，服务broker可以管理可以托管于Cloud Foundry的服务。
+
+## Spring Cloud Cluster
+为Zookeeper，Redis，Hazelcast，Consul提供了分布式选举和通用的状态交互模式的实现。
+
+## Spring Cloud Consul
+提供了使用Hashicorp Consul实现的服务发现和配置管理。
+
+## Spring Cloud Security
+主要是安全实现，比如给客户端提供OAuth2的安全机制等。
+
+## Spring Cloud Sleuth
+主要用于分布式tracing，可以与Zipkin，Htrace，ELK一起工作。
+
+## Spring Cloud Data Flow
+用于服务编排的一个工具。
+
+## Spring Cloud Stream
+一个轻量级的事件驱动的微服务的框架。
+
+## Spring Cloud Stream App Starters
+主要用于与外部系统的集成。
+
+## Spring Cloud Task
+主要是为了设计一些生命周期较短的微服务，以方便执行一些有限的数据处理。
+
+## Spring Cloud Task App Starters
+主要是方便Task与应用集成。
+
+## Spring Cloud Zookeeper
+类似于Consul，只不过是基于Zookeeper的。
+
+## Spring Cloud for Amazon Web Services
+主要是为了方便Amazon Web Services集成。
+
+## Spring Cloud Connectors
+主要是为了方便PAAS平台连接后端的数据库或者消息broker。
+
+## Spring Cloud Starters
+主要是为了使依赖管理做起来更加的容易。
+
+## Spring Cloud CLI
+一套命令行工具，可以轻松的基于groovy语言创建一些服务。
